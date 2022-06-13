@@ -1,0 +1,44 @@
+services:
+  mahasiswa_db:
+    image: postgres:14
+    volumes:
+      - postgres_data_mahasiswa:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=mahasiswa_db_username
+      - POSTGRES_PASSWORD=mahasiswa_db_password
+      - POSTGRES_DB=mahasiswa_db_dev
+  service_read:
+    build: ./service_read
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./service_read/:/app/
+    ports:
+      - 8001:8000
+    environment:
+      - DATABASE_URI=postgresql://mahasiswa_db_username:mahasiswa_db_password@mahasiswa_db/mahasiswa_db_dev
+    depends_on:
+      - mahasiswa_db
+  service_update:
+    build: ./service_update
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./service_update/:/app/
+    ports:
+      - 8002:8000
+    environment:
+      - DATABASE_URI=postgresql://mahasiswa_db_username:mahasiswa_db_password@mahasiswa_db/mahasiswa_db_dev
+    depends_on:
+      - mahasiswa_db
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:8000"
+    volumes: 
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - service_read
+      - service_update
+
+volumes:
+  postgres_data_mahasiswa:
