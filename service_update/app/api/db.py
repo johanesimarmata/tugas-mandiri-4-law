@@ -3,7 +3,7 @@ from sqlalchemy import (Column, Integer, MetaData, String, Table,
 from databases import Database
 import os
 
-DATABASE_URI = os.getenv('DATABASE_URI') or 'postgresql://postgres:mypostgres@localhost:5432/tm4law'
+DATABASE_URI = os.getenv('DATABASE_URI')
 
 engine = create_engine(DATABASE_URI)
 metadata = MetaData()
